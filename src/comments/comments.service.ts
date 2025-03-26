@@ -17,11 +17,31 @@ export class CommentsService {
       parent: createCommentDto.parentId || null,
       user: createCommentDto.userId,
     });
-    return createdComment;
+    return createdComment.then((doc) => {
+      return doc.populate(['user', 'parent']);
+    });
   }
 
   findAll() {
-    return this.commentModel.find().exec();
+    return this.commentModel.find().populate(['user', 'parent']).exec();
+  }
+
+  getTopLevelComments() {
+    return this.commentModel
+      .find({
+        parent: null,
+      })
+      .populate(['user', 'parent'])
+      .exec();
+  }
+
+  getCommentsByParentId(parentId: string) {
+    return this.commentModel
+      .find({
+        parent: parentId,
+      })
+      .populate(['user', 'parent'])
+      .exec();
   }
 
   findOne(id: number) {
